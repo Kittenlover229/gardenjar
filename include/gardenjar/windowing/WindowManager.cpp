@@ -15,6 +15,7 @@ WindowManager::WindowManager(core::Workspace &ws) : ws(ws) {
   if (!glfwInit()) abort();
 
   const char *glsl_version = "#version 130";
+  glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
@@ -48,6 +49,8 @@ WindowManager::~WindowManager() {
 }
 
 void WindowManager::join() {
+  glfwShowWindow(glfw_window);
+
   while (!glfwWindowShouldClose(glfw_window)) {
     glfwPollEvents();
 
