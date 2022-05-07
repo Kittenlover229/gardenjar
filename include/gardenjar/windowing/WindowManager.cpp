@@ -55,6 +55,9 @@ void WindowManager::join() {
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    for (auto &win : windows)
+      if (win->keep_alive()) win->draw(*this);
+
     ImGuiIO &io = ImGui::GetIO();
     ImGui::Render();
     int display_w, display_h;
@@ -65,4 +68,12 @@ void WindowManager::join() {
 
     glfwSwapBuffers(glfw_window);
   }
+}
+
+void WindowManager::add_window(std::shared_ptr<Window> &&win) {
+  // Cleanup space for new windows
+  std::remove_if(windows.begin(), windows.end(),
+                 [](auto win) { return !win->keep_alive(); });
+
+  windows.push_back(win);
 }
