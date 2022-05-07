@@ -18,7 +18,7 @@ struct GraphViewWindow : Window {
   core::Workspace& ws;
   std::map<core::NoteID, std::pair<int, int>> coordinates;
   int scale = 150;
-  int x_offset = 150, y_offset = 150;
+  float x_offset = 150, y_offset = 150;
 };
 
 }  // namespace gardenjar::windowing

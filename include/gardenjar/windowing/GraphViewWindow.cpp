@@ -35,4 +35,10 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
   }
 
   draw_list->ChannelsMerge();
+
+  if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() &&
+      ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)) {
+    x_offset += ImGui::GetIO().MouseDelta.x;
+    y_offset += ImGui::GetIO().MouseDelta.y;
+  }
 }
