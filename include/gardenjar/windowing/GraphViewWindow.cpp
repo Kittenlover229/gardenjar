@@ -86,8 +86,7 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
                             (mx - (x_offset + window_pos.x + x)) +
                         (my - (y_offset + window_pos.y + y)) *
                             (my - (y_offset + window_pos.y + y)));
-    if (note.id == 1) std::cout << d << std::endl;
-
+    
     if (d <= (float)5 * node_interaction_radius && ImGui::IsWindowHovered() &&
         !ImGui::IsAnyItemActive()) {
       ImGui::BeginTooltip();
