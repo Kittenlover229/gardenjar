@@ -45,6 +45,9 @@ struct GraphViewWindow : Window {
   float x_offset = 150, y_offset = 150;
 
  private:
+  void ImGuiFilterMenu();
+  void ImGuiControlMenu();
+  void ImGuiOptionsMenu();
   inline static const float node_interaction_radius = 2;
 };
 

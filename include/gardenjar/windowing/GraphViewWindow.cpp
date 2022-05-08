@@ -31,37 +31,7 @@ void GraphViewWindow::refresh() {
   x_offset = 0, y_offset = 0;
 }
 
-void GraphViewWindow::draw_impl(WindowManager& wm) {
-  auto draw_list = ImGui::GetWindowDrawList();
-  auto window_pos = ImGui::GetWindowPos();
-
-  if (ImGui::BeginMenu("Options")) {
-    ImGui::MenuItem("Show Filters", nullptr, &show_filters);
-    ImGui::MenuItem("Show Controls", nullptr, &show_controls);
-    if (ImGui::MenuItem("Refresh")) refresh();
-    ImGui::EndMenu();
-  }
-
-  if (show_controls) {
-    ImGui::Begin("Controls", &show_controls);
-    if (ImGui::Button("Reset")) {
-      srand(time(NULL));
-      coordinates.clear();
-    }
-    ImGui::SameLine();
-    ImGui::Checkbox("Show Grid", &show_grid);
-    ImGui::Separator();
-    ImGui::SliderFloat("Ideal Length", &ideal_length, 30, 600);
-    ImGui::SliderFloat("Damping", &damping, 0, 1);
-    ImGui::SliderFloat("Repel", &c_rep, 1, 9);
-    ImGui::SliderFloat("Spring", &c_spring, 1, 9);
-    ImGui::Separator();
-    ImGui::SliderFloat("Minimal Node Radius", &node_radius, 1, 2);
-    ImGui::SliderFloat("Node Fatness", &node_fatness, 1, 1.5);
-    ImGui::SliderFloat("Line Thickness", &line_thickness, 0.5, 10);
-    ImGui::End();
-  }
-
+void GraphViewWindow::ImGuiFilterMenu() {
   if (show_filters) {
     if (ImGui::Begin("Filters", &show_filters)) {
       ImGui::Text("Hide tags:");
@@ -105,9 +75,48 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
     }
     ImGui::End();
   }
+}
+
+void GraphViewWindow::ImGuiControlMenu() {
+  if (show_controls) {
+    ImGui::Begin("Controls", &show_controls);
+    if (ImGui::Button("Reset")) {
+      srand(time(NULL));
+      coordinates.clear();
+    }
+    ImGui::SameLine();
+    ImGui::Checkbox("Show Grid", &show_grid);
+    ImGui::Separator();
+    ImGui::SliderFloat("Ideal Length", &ideal_length, 30, 600);
+    ImGui::SliderFloat("Damping", &damping, 0, 1);
+    ImGui::SliderFloat("Repel", &c_rep, 1, 9);
+    ImGui::SliderFloat("Spring", &c_spring, 1, 9);
+    ImGui::Separator();
+    ImGui::SliderFloat("Minimal Node Radius", &node_radius, 1, 2);
+    ImGui::SliderFloat("Node Fatness", &node_fatness, 1, 1.5);
+    ImGui::SliderFloat("Line Thickness", &line_thickness, 0.5, 10);
+    ImGui::End();
+  }
+}
+
+void GraphViewWindow::ImGuiOptionsMenu() {
+  if (ImGui::BeginMenu("Options")) {
+    ImGui::MenuItem("Show Filters", nullptr, &show_filters);
+    ImGui::MenuItem("Show Controls", nullptr, &show_controls);
+    if (ImGui::MenuItem("Refresh")) refresh();
+    ImGui::EndMenu();
+  }
+}
+
+void GraphViewWindow::draw_impl(WindowManager& wm) {
+  ImGuiOptionsMenu();
+  ImGuiControlMenu();
+  ImGuiFilterMenu();
 
   shape_graph();
 
+  auto draw_list = ImGui::GetWindowDrawList();
+  auto window_pos = ImGui::GetWindowPos();
   draw_list->ChannelsSplit(3);
 
   // Draw grid
