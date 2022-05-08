@@ -13,7 +13,6 @@ struct Note {
 
   NoteID id;
   std::u8string title;
-  std::vector<std::u8string> links_to;
 };
 
 }  // namespace gardenjar::core

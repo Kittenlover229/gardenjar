@@ -10,6 +10,8 @@ Workspace::Workspace(std::filesystem::path path) : root(path), id_counter(1) {
 }
 
 void Workspace::refresh() {
+  std::map<NoteID, std::vector<std::u8string>> links_to;
+
   for (auto entry : std::filesystem::recursive_directory_iterator(root)) {
     if (entry.is_regular_file()) {
       std::ifstream file;
@@ -46,7 +48,7 @@ void Workspace::refresh() {
       for (match_out;
            std::regex_search(s.c_str(), match_out, get_regex_matching_link());
            s = match_out.suffix().str())
-        note.links_to.push_back(
+        links_to[note.id].push_back(
             std::u8string((const char8_t*)match_out[1].str().c_str()));
 
       notes.push_back(std::move(note));
@@ -54,7 +56,7 @@ void Workspace::refresh() {
   }
 
   for (auto& note : notes) {
-    for (const auto& other_name : note.links_to) {
+    for (const auto& other_name : links_to[note.id]) {
       auto other_id = name_mappings[other_name];
       note_links.push_back(std::make_pair(note.id, other_id));
     }
