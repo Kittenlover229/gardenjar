@@ -1,4 +1,5 @@
 # Cool Note 4
+#cool #markdown
 
 this note references most other notes!
 

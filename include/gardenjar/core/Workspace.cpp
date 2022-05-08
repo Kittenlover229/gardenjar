@@ -45,10 +45,18 @@ void Workspace::refresh() {
               name_mappings[note_title] = note_id;
 
       Note note = Note(note_id, note_title);
+      std::string ss(s);
       for (match_out;
-           std::regex_search(s.c_str(), match_out, get_regex_matching_link());
-           s = match_out.suffix().str())
+           std::regex_search(ss.c_str(), match_out, get_regex_matching_link());
+           ss = match_out.suffix().str())
         links_to[note.id].push_back(
+            std::u8string((const char8_t*)match_out[1].str().c_str()));
+
+      ss = s;
+      for (match_out;
+           std::regex_search(ss.c_str(), match_out, get_regex_matching_tag());
+           ss = match_out.suffix().str())
+        note.tags.push_back(
             std::u8string((const char8_t*)match_out[1].str().c_str()));
 
       notes.push_back(std::move(note));
@@ -71,5 +79,10 @@ std::regex& Workspace::get_regex_matching_link() const {
 std::regex& Workspace::get_regex_matching_header() const {
   static std::regex regex =
       std::regex("^#\\s+(.+)", std::regex_constants::ECMAScript);
+  return regex;
+}
+
+std::regex& Workspace::get_regex_matching_tag() const {
+  static std::regex regex = std::regex("#([^\\s!@#$%^&*(),.?\":{}|<>]+)");
   return regex;
 }

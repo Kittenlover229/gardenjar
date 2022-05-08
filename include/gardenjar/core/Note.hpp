@@ -1,8 +1,8 @@
 #ifndef GARDENJAR_H__CORE__NOTE
 #define GARDENJAR_H__CORE__NOTE
 
-#include <vector>
 #include <string>
+#include <vector>
 
 namespace gardenjar::core {
 
@@ -13,6 +13,7 @@ struct Note {
 
   NoteID id;
   std::u8string title;
+  std::vector<std::u8string> tags;
 };
 
 }  // namespace gardenjar::core

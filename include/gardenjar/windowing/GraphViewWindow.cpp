@@ -114,6 +114,15 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
       } else {
         ImGui::BeginTooltip();
         ImGui::Text((const char*)note.title.c_str());
+
+        if (note.tags.size() > 0) {
+          ImGui::Separator();
+          for (int i = 0; i < note.tags.size(); i++) {
+            ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), "%s",
+                               note.tags[i].c_str());
+          }
+        }
+
         ImGui::EndTooltip();
       }
     } else {
