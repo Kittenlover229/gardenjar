@@ -41,7 +41,7 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
     ImGui::SameLine();
     ImGui::Checkbox("Show Grid", &show_grid);
     ImGui::Separator();
-    ImGui::SliderFloat("Ideal Length", &ideal_length, 1, 300);
+    ImGui::SliderFloat("Ideal Length", &ideal_length, 30, 600);
     ImGui::SliderFloat("Damping", &damping, 0, 1);
     ImGui::SliderFloat("Repel", &c_rep, 1, 9);
     ImGui::SliderFloat("Spring", &c_spring, 1, 9);
@@ -164,7 +164,7 @@ void GraphViewWindow::shape_graph() {
 
       auto [x2, y2] = coordinates[other_note.id];
       auto d = std::sqrtf((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-      if (d == 0) d = 1;
+      if (d <= 1) continue;
 
       float ux = x2 - x1, uy = y2 - y1;
       ux /= d, uy /= d;
