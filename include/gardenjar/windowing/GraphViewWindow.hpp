@@ -19,6 +19,8 @@ struct GraphViewWindow : Window {
   core::Workspace& ws;
 
   bool show_controls;
+  bool show_grid;
+
   std::map<core::NoteID, std::pair<float, float>> coordinates;
   float ideal_length;
   float c_rep;
@@ -27,6 +29,9 @@ struct GraphViewWindow : Window {
 
   int scale = 150;
   float x_offset = 150, y_offset = 150;
+
+ private:
+  inline static const float node_interaction_radius = 2;
 };
 
 }  // namespace gardenjar::windowing

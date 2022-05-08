@@ -3,6 +3,8 @@
 #include <imgui.h>
 #include <math.h>
 
+#include <iostream>
+
 using namespace gardenjar::windowing;
 
 GraphViewWindow::GraphViewWindow(core::Workspace& ws)
@@ -16,7 +18,6 @@ GraphViewWindow::GraphViewWindow(core::Workspace& ws)
 
 void GraphViewWindow::draw_impl(WindowManager& wm) {
   auto draw_list = ImGui::GetWindowDrawList();
-  draw_list->ChannelsSplit(2);
   auto window_pos = ImGui::GetWindowPos();
 
   if (ImGui::BeginMenu("Options")) {
@@ -32,6 +33,8 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
       srand(time(NULL));
       coordinates.clear();
     }
+    ImGui::SameLine();
+    ImGui::Checkbox("Show Grid", &show_grid);
     ImGui::SliderFloat("Ideal Length", &ideal_length, 1, 300);
     ImGui::SliderFloat("Damping", &damping, 0, 1);
     ImGui::SliderFloat("Repel", &c_rep, 1, 9);
@@ -41,8 +44,26 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
 
   shape_graph();
 
+  draw_list->ChannelsSplit(3);
+
+  // Draw grid
+  if (show_grid) {
+    ImU32 GRID_COLOR = IM_COL32(200, 200, 200, 40);
+    float GRID_SZ = 64.0f;
+    ImVec2 win_pos = ImGui::GetCursorScreenPos();
+    ImVec2 canvas_sz = ImGui::GetWindowSize();
+    for (float x = fmodf(x_offset, GRID_SZ); x < canvas_sz.x; x += GRID_SZ)
+      draw_list->AddLine(ImVec2(x + win_pos.x, win_pos.y),
+                         ImVec2(x + win_pos.x, canvas_sz.y + win_pos.y),
+                         GRID_COLOR);
+    for (float y = fmodf(y_offset, GRID_SZ); y < canvas_sz.y; y += GRID_SZ)
+      draw_list->AddLine(ImVec2(win_pos.x, y + win_pos.y),
+                         ImVec2(canvas_sz.x + win_pos.x, y + win_pos.y),
+                         GRID_COLOR);
+  }
+
   // Draw links
-  draw_list->ChannelsSetCurrent(0);
+  draw_list->ChannelsSetCurrent(1);
 
   for (const auto& [note_id, other_note_ids] : ws.links) {
     auto [x1, y1] = coordinates[note_id];
@@ -56,9 +77,24 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
   }
 
   // Draw notes
-  draw_list->ChannelsSetCurrent(1);
+  draw_list->ChannelsSetCurrent(2);
   for (const auto& note : ws.notes) {
     auto [x, y] = coordinates[note.id];
+    auto [mx, my] = ImGui::GetMousePos();
+
+    auto d = std::sqrtf((mx - (x_offset + window_pos.x + x)) *
+                            (mx - (x_offset + window_pos.x + x)) +
+                        (my - (y_offset + window_pos.y + y)) *
+                            (my - (y_offset + window_pos.y + y)));
+    if (note.id == 1) std::cout << d << std::endl;
+
+    if (d <= (float)5 * node_interaction_radius && ImGui::IsWindowHovered() &&
+        !ImGui::IsAnyItemActive()) {
+      ImGui::BeginTooltip();
+      ImGui::Text((const char*)note.title.c_str());
+      ImGui::EndTooltip();
+    }
+
     draw_list->AddCircleFilled(
         ImVec2(x_offset + window_pos.x + x, y_offset + window_pos.y + y), 5,
         IM_COL32(200, 200, 100, 255));
