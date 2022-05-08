@@ -38,7 +38,7 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
   }
 
   if (show_controls) {
-    ImGui::Begin("Controls");
+    ImGui::Begin("Controls", &show_controls);
     if (ImGui::Button("Reset")) {
       srand(time(NULL));
       coordinates.clear();
