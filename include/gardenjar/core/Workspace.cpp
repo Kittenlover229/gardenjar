@@ -55,12 +55,9 @@ void Workspace::refresh() {
     }
   }
 
-  for (auto& note : notes) {
-    for (const auto& other_name : links_to[note.id]) {
-      auto other_id = name_mappings[other_name];
-      note_links.push_back(std::make_pair(note.id, other_id));
-    }
-  }
+  for (auto& note : notes)
+    for (const auto& other_name : links_to[note.id])
+      links[note.id].push_back(name_mappings[other_name]);
 }
 
 NoteID Workspace::get_spare_id() { return id_counter++; }

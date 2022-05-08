@@ -15,14 +15,16 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
 
   // Draw links
   draw_list->ChannelsSetCurrent(0);
-  for (const auto& link : ws.note_links) {
-    auto [x1, y1] = coordinates[link.first];
-    auto [x2, y2] = coordinates[link.second];
 
-    draw_list->AddLine(
-        ImVec2(x_offset + window_pos.x + x1, y_offset + window_pos.y + y1),
-        ImVec2(x_offset + window_pos.x + x2, y_offset + window_pos.y + y2),
-        IM_COL32(200, 200, 100, 255), 1.0f);
+  for (const auto& [note_id, other_note_ids] : ws.links) {
+    auto [x1, y1] = coordinates[note_id];
+    for (const auto& other_note_id : other_note_ids) {
+      auto [x2, y2] = coordinates[other_note_id];
+      draw_list->AddLine(
+          ImVec2(x_offset + window_pos.x + x1, y_offset + window_pos.y + y1),
+          ImVec2(x_offset + window_pos.x + x2, y_offset + window_pos.y + y2),
+          IM_COL32(200, 200, 100, 255), 1.0f);
+    }
   }
 
   // Draw notes

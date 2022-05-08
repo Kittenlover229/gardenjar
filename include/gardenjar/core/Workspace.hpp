@@ -21,7 +21,7 @@ struct Workspace {
   std::regex& get_regex_matching_header() const;
 
   std::map<std::u8string, NoteID> name_mappings;
-  std::vector<std::pair<NoteID, NoteID>> note_links;
+  std::map<NoteID, std::vector<NoteID>> links;
   std::vector<Note> notes;
 
  protected:
