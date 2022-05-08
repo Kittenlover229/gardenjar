@@ -21,14 +21,19 @@ GraphViewWindow::GraphViewWindow(core::Workspace& ws)
       node_radius(2),
       dragged_note_id(0) {}
 
+void GraphViewWindow::refresh() {
+  ws.refresh();
+  coordinates.clear();
+  x_offset = 0, y_offset = 0;
+}
+
 void GraphViewWindow::draw_impl(WindowManager& wm) {
   auto draw_list = ImGui::GetWindowDrawList();
   auto window_pos = ImGui::GetWindowPos();
 
   if (ImGui::BeginMenu("Options")) {
-    if (ImGui::MenuItem("Show Controls")) {
-      show_controls = !show_controls;
-    }
+    if (ImGui::MenuItem("Show Controls")) show_controls = !show_controls;
+    if (ImGui::MenuItem("Refresh")) refresh();
     ImGui::EndMenu();
   }
 

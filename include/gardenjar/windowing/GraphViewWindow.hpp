@@ -14,6 +14,7 @@ struct GraphViewWindow : Window {
 
   virtual void draw_impl(WindowManager&) override;
   void shape_graph();
+  void refresh();
 
  protected:
   core::Workspace& ws;

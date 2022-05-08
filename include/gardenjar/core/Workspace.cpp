@@ -10,6 +10,11 @@ Workspace::Workspace(std::filesystem::path path) : root(path), id_counter(1) {
 }
 
 void Workspace::refresh() {
+  links.clear();
+  id_counter = 1;
+  name_mappings.clear();
+  notes.clear();
+
   std::map<NoteID, std::vector<std::u8string>> links_to;
 
   for (auto entry : std::filesystem::recursive_directory_iterator(root)) {
