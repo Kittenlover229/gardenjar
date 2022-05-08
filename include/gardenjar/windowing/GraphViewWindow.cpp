@@ -16,13 +16,17 @@ GraphViewWindow::GraphViewWindow(core::Workspace& ws)
       damping(1),
       node_fatness(1.5),
       show_controls(false),
+      show_filters(false),
       show_grid(true),
       line_thickness(0.5),
       node_radius(2),
-      dragged_note_id(0) {}
+      dragged_note_id(0) {
+  std::memset(search_query_buf, 0x00, sizeof(char8_t) * 64);
+}
 
 void GraphViewWindow::refresh() {
   ws.refresh();
+  hide_with_tag.clear();
   coordinates.clear();
   x_offset = 0, y_offset = 0;
 }
@@ -32,7 +36,8 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
   auto window_pos = ImGui::GetWindowPos();
 
   if (ImGui::BeginMenu("Options")) {
-    if (ImGui::MenuItem("Show Controls")) show_controls = !show_controls;
+    ImGui::MenuItem("Show Filters", nullptr, &show_filters);
+    ImGui::MenuItem("Show Controls", nullptr, &show_controls);
     if (ImGui::MenuItem("Refresh")) refresh();
     ImGui::EndMenu();
   }
@@ -54,6 +59,50 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
     ImGui::SliderFloat("Minimal Node Radius", &node_radius, 1, 2);
     ImGui::SliderFloat("Node Fatness", &node_fatness, 1, 1.5);
     ImGui::SliderFloat("Line Thickness", &line_thickness, 0.5, 10);
+    ImGui::End();
+  }
+
+  if (show_filters) {
+    if (ImGui::Begin("Filters", &show_filters)) {
+      ImGui::Text("Hide tags:");
+
+      auto userdata = std::make_pair(&search_query_len, search_query_buf);
+      ImGui::InputText(
+          "Search", (char*)search_query_buf, 63,
+          ImGuiInputTextFlags_AutoSelectAll | ImGuiInputTextFlags_CallbackEdit,
+          [](ImGuiInputTextCallbackData* data) {
+            auto len_buff = (decltype(userdata)*)(data->UserData);
+            auto& [len, buf] = *len_buff;
+            *len = data->BufTextLen;
+            return 0;
+          },
+          &userdata);
+
+      if (ImGui::Button("Disable All")) {
+        for (auto& tag : this->hide_with_tag) {
+          tag.second = false;
+        }
+      }
+      ImGui::SameLine();
+      if (ImGui::Button("Enable All")) {
+        for (auto& tag : this->hide_with_tag) {
+          tag.second = true;
+        }
+      }
+
+      ImGui::Separator();
+
+      if (search_query_len == 0) {
+        for (const auto& [id, tag] : ws.tags) {
+          ImGui::Checkbox((const char*)tag.str.c_str(), &hide_with_tag[id]);
+        }
+      } else {
+        for (const auto& [id, tag] : ws.tags)
+          if (tag.str.find(std::u8string(search_query_buf)) !=
+              std::u8string::npos)
+            ImGui::Checkbox((const char*)tag.str.c_str(), &hide_with_tag[id]);
+      }
+    }
     ImGui::End();
   }
 
