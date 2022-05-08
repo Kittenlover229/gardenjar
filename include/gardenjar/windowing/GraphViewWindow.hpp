@@ -20,6 +20,10 @@ struct GraphViewWindow : Window {
 
   bool show_controls;
   bool show_grid;
+  float node_fatness;
+  float node_radius;
+  float line_thickness;
+  core::NoteID dragged_note_id;
 
   std::map<core::NoteID, std::pair<float, float>> coordinates;
   float ideal_length;

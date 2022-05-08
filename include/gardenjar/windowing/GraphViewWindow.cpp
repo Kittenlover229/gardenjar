@@ -14,7 +14,12 @@ GraphViewWindow::GraphViewWindow(core::Workspace& ws)
       ideal_length(100),
       c_spring(1),
       damping(1),
-      show_controls(false) {}
+      node_fatness(1.5),
+      show_controls(false),
+      show_grid(true),
+      line_thickness(0.5),
+      node_radius(2),
+      dragged_note_id(0) {}
 
 void GraphViewWindow::draw_impl(WindowManager& wm) {
   auto draw_list = ImGui::GetWindowDrawList();
@@ -35,10 +40,15 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
     }
     ImGui::SameLine();
     ImGui::Checkbox("Show Grid", &show_grid);
+    ImGui::Separator();
     ImGui::SliderFloat("Ideal Length", &ideal_length, 1, 300);
     ImGui::SliderFloat("Damping", &damping, 0, 1);
     ImGui::SliderFloat("Repel", &c_rep, 1, 9);
     ImGui::SliderFloat("Spring", &c_spring, 1, 9);
+    ImGui::Separator();
+    ImGui::SliderFloat("Minimal Node Radius", &node_radius, 1, 2);
+    ImGui::SliderFloat("Node Fatness", &node_fatness, 1, 1.5);
+    ImGui::SliderFloat("Line Thickness", &line_thickness, 0.5, 10);
     ImGui::End();
   }
 
@@ -72,13 +82,15 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
       draw_list->AddLine(
           ImVec2(x_offset + window_pos.x + x1, y_offset + window_pos.y + y1),
           ImVec2(x_offset + window_pos.x + x2, y_offset + window_pos.y + y2),
-          IM_COL32(200, 200, 100, 255), 1.0f);
+          IM_COL32(75, 75, 75, 255), line_thickness);
     }
   }
 
   // Draw notes
   draw_list->ChannelsSetCurrent(2);
   for (const auto& note : ws.notes) {
+    auto neighbours_count = ws.links[note.id].size();
+
     auto [x, y] = coordinates[note.id];
     auto [mx, my] = ImGui::GetMousePos();
 
@@ -86,25 +98,51 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
                             (mx - (x_offset + window_pos.x + x)) +
                         (my - (y_offset + window_pos.y + y)) *
                             (my - (y_offset + window_pos.y + y)));
-    
-    if (d <= (float)5 * node_interaction_radius && ImGui::IsWindowHovered() &&
-        !ImGui::IsAnyItemActive()) {
-      ImGui::BeginTooltip();
-      ImGui::Text((const char*)note.title.c_str());
-      ImGui::EndTooltip();
-    }
 
-    draw_list->AddCircleFilled(
-        ImVec2(x_offset + window_pos.x + x, y_offset + window_pos.y + y), 5,
-        IM_COL32(200, 200, 100, 255));
+    auto display_node_radius =
+        node_radius * (1 + powf(node_fatness, neighbours_count));
+
+    if (d <= display_node_radius * node_interaction_radius &&
+        ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive()) {
+      // Node is hovered
+      draw_list->AddCircleFilled(
+          ImVec2(x_offset + window_pos.x + x, y_offset + window_pos.y + y),
+          display_node_radius, IM_COL32(200, 200, 200, 255));
+
+      if (dragged_note_id == 0 && ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
+        dragged_note_id = note.id;
+      } else {
+        ImGui::BeginTooltip();
+        ImGui::Text((const char*)note.title.c_str());
+        ImGui::EndTooltip();
+      }
+    } else {
+      // Node is not hovered
+      draw_list->AddCircleFilled(
+          ImVec2(x_offset + window_pos.x + x, y_offset + window_pos.y + y),
+          display_node_radius, IM_COL32(100, 100, 100, 255));
+    }
   }
 
   draw_list->ChannelsMerge();
 
   if (ImGui::IsWindowHovered() && !ImGui::IsAnyItemActive() &&
       ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)) {
-    x_offset += ImGui::GetIO().MouseDelta.x;
-    y_offset += ImGui::GetIO().MouseDelta.y;
+    if (dragged_note_id) {
+      // You are dragging a node
+      coordinates[dragged_note_id].first =
+          ImGui::GetMousePos().x - x_offset - window_pos.x;
+      coordinates[dragged_note_id].second =
+          ImGui::GetMousePos().y - y_offset - window_pos.y;
+    } else {
+      // You are scrolling
+      x_offset += ImGui::GetIO().MouseDelta.x;
+      y_offset += ImGui::GetIO().MouseDelta.y;
+    }
+  }
+
+  if (ImGui::IsMouseReleased(ImGuiMouseButton_Middle)) {
+    dragged_note_id = 0;
   }
 }
 
