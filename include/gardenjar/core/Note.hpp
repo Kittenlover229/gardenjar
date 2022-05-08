@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+#include "Tag.hpp"
+
 namespace gardenjar::core {
 
 using NoteID = unsigned long;
@@ -13,7 +15,7 @@ struct Note {
 
   NoteID id;
   std::u8string title;
-  std::vector<std::u8string> tags;
+  std::vector<TagID> tag_ids;
 };
 
 }  // namespace gardenjar::core

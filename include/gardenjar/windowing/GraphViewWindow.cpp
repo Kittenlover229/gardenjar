@@ -120,11 +120,15 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
         ImGui::BeginTooltip();
         ImGui::Text((const char*)note.title.c_str());
 
-        if (note.tags.size() > 0) {
+        auto tag_count = note.tag_ids.size();
+        if (tag_count > 0) {
+          const char* fmt_str = tag_count == 1 ? "1 tag:" : "%d tags:";
           ImGui::Separator();
-          for (int i = 0; i < note.tags.size(); i++) {
-            ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), "%s",
-                               note.tags[i].c_str());
+          ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), fmt_str, tag_count);
+          for (int i = 0; i < note.tag_ids.size(); i++) {
+            auto tag_id = note.tag_ids[i];
+            ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), "#%s",
+                               ws.tags[tag_id].str.c_str());
           }
         }
 

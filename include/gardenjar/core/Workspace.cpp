@@ -5,13 +5,15 @@
 
 using namespace gardenjar::core;
 
-Workspace::Workspace(std::filesystem::path path) : root(path), id_counter(1) {
+Workspace::Workspace(std::filesystem::path path)
+    : root(path), note_id_counter(1), tag_id_counter(1) {
   refresh();
 }
 
 void Workspace::refresh() {
   links.clear();
-  id_counter = 1;
+  note_id_counter = 1;
+  tag_id_counter = 1;
   name_mappings.clear();
   notes.clear();
 
@@ -33,7 +35,7 @@ void Workspace::refresh() {
                     .filename()
                     .u8string();
 
-      auto note_id = get_spare_id();
+      auto note_id = get_spare_note_id();
 
       auto workspace_path =
           std::filesystem::relative(entry.path(), root).u8string();
@@ -60,9 +62,25 @@ void Workspace::refresh() {
       ss = s;
       for (match_out;
            std::regex_search(ss.c_str(), match_out, get_regex_matching_tag());
-           ss = match_out.suffix().str())
-        note.tags.push_back(
-            std::u8string((const char8_t*)match_out[1].str().c_str()));
+           ss = match_out.suffix().str()) {
+        auto str_tag =
+            std::u8string((const char8_t*)match_out[1].str().c_str());
+
+        TagID id = 0;
+        auto tag_iter = std::find_if(
+            tags.cbegin(), tags.cend(),
+            [&](const auto& it) { return it.second.str == str_tag; });
+
+        if (tag_iter != tags.cend()) {
+          id = tag_iter->first;
+        } else {
+          auto tag = Tag(str_tag, get_spare_tag_id());
+          id = tag.id;
+          tags[id] = tag;
+        }
+
+        note.tag_ids.push_back(id);
+      }
 
       notes.push_back(std::move(note));
     }
@@ -73,7 +91,8 @@ void Workspace::refresh() {
       links[note.id].push_back(name_mappings[other_name]);
 }
 
-NoteID Workspace::get_spare_id() { return id_counter++; }
+NoteID Workspace::get_spare_note_id() { return note_id_counter++; }
+TagID Workspace::get_spare_tag_id() { return tag_id_counter++; }
 
 std::regex& Workspace::get_regex_matching_link() const {
   static std::regex regex =
