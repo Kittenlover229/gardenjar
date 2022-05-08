@@ -16,9 +16,13 @@ void Window::draw_impl(WindowManager&) {
 void Window::close() { _keep_alive = false; }
 
 void Window::draw(WindowManager& wm) {
-  if (ImGui::Begin((const char*)window_name.c_str())) {
+  bool wants_stay_open = true;
+  ImGui::Begin((const char*)(window_name).c_str(), &wants_stay_open,
+               ImGuiWindowFlags_NoFocusOnAppearing);
+  if (wants_stay_open)
     draw_impl(wm);
-  }
+  else
+    this->close();
   ImGui::End();
 }
 
