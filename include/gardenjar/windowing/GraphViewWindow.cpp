@@ -108,6 +108,25 @@ void GraphViewWindow::ImGuiOptionsMenu() {
   }
 }
 
+void GraphViewWindow::ImGuiNotePopup(const core::Note& note) {
+  ImGui::BeginTooltip();
+  ImGui::Text((const char*)note.title.c_str());
+
+  auto tag_count = note.tag_ids.size();
+  if (tag_count > 0) {
+    const char* fmt_str = tag_count == 1 ? "1 tag:" : "%d tags:";
+    ImGui::Separator();
+    ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), fmt_str, tag_count);
+    for (int i = 0; i < note.tag_ids.size(); i++) {
+      auto tag_id = note.tag_ids[i];
+      ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), "#%s",
+                         ws.tags[tag_id].str.c_str());
+    }
+  }
+
+  ImGui::EndTooltip();
+}
+
 void GraphViewWindow::draw_impl(WindowManager& wm) {
   ImGuiOptionsMenu();
   ImGuiControlMenu();
@@ -175,22 +194,7 @@ void GraphViewWindow::draw_impl(WindowManager& wm) {
       if (dragged_note_id == 0 && ImGui::IsMouseDown(ImGuiMouseButton_Middle)) {
         dragged_note_id = note.id;
       } else {
-        ImGui::BeginTooltip();
-        ImGui::Text((const char*)note.title.c_str());
-
-        auto tag_count = note.tag_ids.size();
-        if (tag_count > 0) {
-          const char* fmt_str = tag_count == 1 ? "1 tag:" : "%d tags:";
-          ImGui::Separator();
-          ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), fmt_str, tag_count);
-          for (int i = 0; i < note.tag_ids.size(); i++) {
-            auto tag_id = note.tag_ids[i];
-            ImGui::TextColored(ImVec4(0.6, 0.6, 0.6, 1), "#%s",
-                               ws.tags[tag_id].str.c_str());
-          }
-        }
-
-        ImGui::EndTooltip();
+        ImGuiNotePopup(note);
       }
     } else {
       // Node is not hovered

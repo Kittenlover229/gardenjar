@@ -48,6 +48,7 @@ struct GraphViewWindow : Window {
   void ImGuiFilterMenu();
   void ImGuiControlMenu();
   void ImGuiOptionsMenu();
+  void ImGuiNotePopup(const core::Note& note);
   inline static const float node_interaction_radius = 2;
 };
 
