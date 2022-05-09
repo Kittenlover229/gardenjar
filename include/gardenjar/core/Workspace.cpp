@@ -127,3 +127,9 @@ std::u8string Workspace::system_path_to_workspace_path(
 
   return workspace_path;
 }
+
+Note* Workspace::get_note_by_id(NoteID id) {
+  for (auto& note : notes)
+    if (note.id == id) return &note;
+  return nullptr;
+}

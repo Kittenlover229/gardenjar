@@ -24,7 +24,7 @@ struct GraphViewWindow : Window {
   bool show_filters;
 
   // Filters
-  std::map<core::TagID, bool> hide_with_tag;
+  std::map<core::TagID, bool> show_with_tag;
   char8_t search_query_buf[64];
   size_t search_query_len = 0;
 
@@ -45,6 +45,7 @@ struct GraphViewWindow : Window {
   float x_offset = 150, y_offset = 150;
 
  private:
+  bool is_note_visible(core::NoteID);
   void ImGuiFilterMenu();
   void ImGuiControlMenu();
   void ImGuiOptionsMenu();
