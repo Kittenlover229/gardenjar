@@ -16,11 +16,14 @@ struct Workspace {
 
   void refresh();
 
+  TagID get_tag_id_by_name(std::u8string);
+  NoteID get_note_id_by_name(std::u8string);
   NoteID get_spare_note_id();
   TagID get_spare_tag_id();
-  std::regex& get_regex_matching_link() const;
-  std::regex& get_regex_matching_header() const;
-  std::regex& get_regex_matching_tag() const;
+  std::u8string system_path_to_workspace_path(std::filesystem::path) const;
+  const std::regex& get_regex_matching_link() const;
+  const std::regex& get_regex_matching_header() const;
+  const std::regex& get_regex_matching_tag() const;
 
   std::map<std::u8string, NoteID> name_mappings;
   std::map<NoteID, std::vector<NoteID>> links;

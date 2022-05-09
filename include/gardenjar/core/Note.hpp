@@ -11,7 +11,7 @@ namespace gardenjar::core {
 using NoteID = unsigned long;
 
 struct Note {
-  explicit Note(NoteID id, std::u8string title);
+  explicit Note(NoteID id, std::u8string title, std::vector<TagID>&& tags = {});
 
   NoteID id;
   std::u8string title;
