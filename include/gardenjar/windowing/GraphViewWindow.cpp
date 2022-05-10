@@ -138,8 +138,8 @@ void GraphViewWindow::ImGuiNotePopup(const core::Note& note) {
 
 bool GraphViewWindow::is_note_visible(core::NoteID id) {
   auto show_by_tags =
-      std::any_of(ws.get_note_where(id)->tag_ids.cbegin(),
-                  ws.get_note_where(id)->tag_ids.cend(),
+      std::any_of(ws.get_note_by_id(id)->tag_ids.cbegin(),
+                  ws.get_note_by_id(id)->tag_ids.cend(),
                   [this](auto id) { return show_with_tag[id]; });
 
   return show_by_tags;

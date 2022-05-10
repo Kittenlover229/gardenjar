@@ -22,6 +22,12 @@ void forall_regex_matches_in_str(
     callback(std::u8string((const char8_t*)match_out[1].str().c_str()));
 }
 
+bool is_extension_supported(std::u8string_view extt) {
+  for (const auto& ext : Workspace::supported_extensions)
+    if (ext == extt) return true;
+  return true;
+}
+
 void Workspace::refresh() {
   links.clear();
   note_id_counter = 1;
@@ -32,13 +38,17 @@ void Workspace::refresh() {
   std::map<NoteID, std::vector<std::u8string>> links_to;
 
   for (auto entry : std::filesystem::recursive_directory_iterator(root)) {
+    auto path = entry.path();
+    if (!path.has_extension()) continue;
+    if (!is_extension_supported(path.filename().u8string())) continue;
+
     if (entry.is_regular_file()) {
       std::ifstream file;
-      file.open(entry.path());
+      file.open(path);
       std::string file_contents = {std::istreambuf_iterator<char>(file),
                                    std::istreambuf_iterator<char>()};
 
-      auto note_path = entry.path();
+      auto note_path = path;
       std::cmatch match_out;
       std::u8string note_title =
           std::regex_search(file_contents.c_str(), match_out,

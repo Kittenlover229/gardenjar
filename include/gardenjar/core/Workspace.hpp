@@ -32,6 +32,8 @@ struct Workspace {
   std::vector<Note> notes;
   std::map<TagID, Tag> tags;
 
+  inline static const char8_t* supported_extensions[] = {u8"txt", u8"md"};
+
  protected:
   std::filesystem::path root;
 
