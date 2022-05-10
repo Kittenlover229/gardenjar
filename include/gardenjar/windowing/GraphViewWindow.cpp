@@ -271,8 +271,7 @@ void GraphViewWindow::shape_graph() {
 
       auto [x2, y2] = coordinates[other_note.id];
       auto d = std::sqrtf((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-      if (d <= 1) continue;
-
+      
       float ux = x2 - x1, uy = y2 - y1;
       ux /= d, uy /= d;
 
@@ -282,10 +281,9 @@ void GraphViewWindow::shape_graph() {
       if (adjecent_note_iter == linked_notes.end()) {
         fx += (c_rep / (d * d)) * ux;
         fy += (c_rep / (d * d)) * uy;
-      } else {
-        fx += log10f(d / ideal_length) * c_spring * ux;
-        fy += log10f(d / ideal_length) * c_spring * uy;
       }
+      fx += log10f(d / ideal_length) * c_spring * ux;
+      fy += log10f(d / ideal_length) * c_spring * uy;
     }
 
     forces[note.id].first = fx;
