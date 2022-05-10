@@ -25,7 +25,7 @@ void forall_regex_matches_in_str(
 bool is_extension_supported(std::u8string_view extt) {
   for (const auto& ext : Workspace::supported_extensions)
     if (ext == extt) return true;
-  return true;
+  return false;
 }
 
 void Workspace::refresh() {
@@ -40,7 +40,7 @@ void Workspace::refresh() {
   for (auto entry : std::filesystem::recursive_directory_iterator(root)) {
     auto path = entry.path();
     if (!path.has_extension()) continue;
-    if (!is_extension_supported(path.filename().u8string())) continue;
+    if (!is_extension_supported(path.extension().u8string())) continue;
 
     if (entry.is_regular_file()) {
       std::ifstream file;

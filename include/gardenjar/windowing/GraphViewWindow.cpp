@@ -137,9 +137,10 @@ void GraphViewWindow::ImGuiNotePopup(const core::Note& note) {
 }
 
 bool GraphViewWindow::is_note_visible(core::NoteID id) {
+  const auto& note = ws.get_note_by_id(id);
   auto show_by_tags =
-      std::any_of(ws.get_note_by_id(id)->tag_ids.cbegin(),
-                  ws.get_note_by_id(id)->tag_ids.cend(),
+      note->tag_ids.size() == 0 ||
+      std::any_of(note->tag_ids.cbegin(), note->tag_ids.cend(),
                   [this](auto id) { return show_with_tag[id]; });
 
   return show_by_tags;
@@ -271,7 +272,7 @@ void GraphViewWindow::shape_graph() {
 
       auto [x2, y2] = coordinates[other_note.id];
       auto d = std::sqrtf((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-      
+
       float ux = x2 - x1, uy = y2 - y1;
       ux /= d, uy /= d;
 
